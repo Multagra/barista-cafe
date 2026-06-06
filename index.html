@@ -419,56 +419,7 @@ footer::before{content:'';position:absolute;top:0;left:0;right:0;height:1px;back
 </section>
 
 <!-- ══ SPECIALS ══ -->
-<section id="specials" style="padding:8rem 2rem;background:#f7f0e6">
-  <div style="max-width:1200px;margin:0 auto">
-    <div class="section-header reveal" style="text-align:left">
-      <span class="section-label">Только сейчас</span>
-      <h2 class="section-title" style="color:#1a1209">Спец<em>предложения</em></h2>
-    </div>
-    <div class="specials-grid reveal">
-      <!-- Featured -->
-      <div class="special-card featured">
-        <div style="font-size:5rem;margin-bottom:2rem;opacity:.6">☕</div>
-        <p class="special-name">Утренний сет</p>
-        <p class="special-desc">Любой кофе + круассан или тост. Идеальное начало дня по специальной цене каждое утро с 08:00 до 11:00.</p>
-        <p class="special-price">1 500 ₸ · до 11:00</p>
-      </div>
-      <!-- Cards -->
-      <div class="special-card">
-        <div class="special-img" style="font-size:3rem">🍰</div>
-        <div class="special-body">
-          <p class="special-name">Кофе + десерт</p>
-          <p class="special-desc">Любой эспрессо-напиток и десерт на выбор.</p>
-          <p class="special-price">−15%</p>
-        </div>
-      </div>
-      <div class="special-card">
-        <div class="special-img" style="font-size:3rem">🎁</div>
-        <div class="special-body">
-          <p class="special-name">Карта лояльности</p>
-          <p class="special-desc">Каждый 10-й кофе — бесплатно. Спросите у бариста.</p>
-          <p class="special-price">Бесплатно</p>
-        </div>
-      </div>
-      <div class="special-card">
-        <div class="special-img" style="font-size:3rem">👥</div>
-        <div class="special-body">
-          <p class="special-name">Для компании</p>
-          <p class="special-desc">При заказе от 4 персон — бесплатный кофе в подарок.</p>
-          <p class="special-price">От 4 чел.</p>
-        </div>
-      </div>
-      <div class="special-card">
-        <div class="special-img" style="font-size:3rem">🌙</div>
-        <div class="special-body">
-          <p class="special-name">Вечерний час</p>
-          <p class="special-desc">С 19:00 до 22:00 — скидка 10% на всё меню.</p>
-          <p class="special-price">−10% с 19:00</p>
-        </div>
-      </div>
-    </div>
-  </div>
-</section>
+<div class="specials-grid reveal" id="specials-grid"></div>
 
 <!-- ══ BOOKING ══ -->
 <section class="booking-section" id="booking">
@@ -630,6 +581,40 @@ async function loadMenu() {
 }
 
 loadMenu();
+async function loadSpecials() {
+  try {
+    const res  = await fetch(APPS_SCRIPT_URL + '?action=specials');
+    const json = await res.json();
+    if (!json.specials || !json.specials.length) return;
+
+    const grid = document.getElementById('specials-grid');
+    grid.innerHTML = json.specials.map(item => {
+      if (item.type === 'featured') {
+        return `
+          <div class="special-card featured">
+            <div style="font-size:5rem;margin-bottom:2rem;opacity:.6">${item.emoji}</div>
+            <p class="special-name">${item.name}</p>
+            <p class="special-desc">${item.desc}</p>
+            <p class="special-price">${item.price}</p>
+          </div>`;
+      } else {
+        return `
+          <div class="special-card">
+            <div class="special-img" style="font-size:3rem">${item.emoji}</div>
+            <div class="special-body">
+              <p class="special-name">${item.name}</p>
+              <p class="special-desc">${item.desc}</p>
+              <p class="special-price">${item.price}</p>
+            </div>
+          </div>`;
+      }
+    }).join('');
+  } catch(err) {
+    console.warn('Акции не загружены', err);
+  }
+}
+
+loadSpecials();
 // ── NAV scroll ──────────────────────────────────────────
 const navbar = document.getElementById('navbar');
 window.addEventListener('scroll', () => {
